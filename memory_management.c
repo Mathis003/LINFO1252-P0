@@ -78,9 +78,21 @@ void my_free(void *pointer)
     uint8_t *new_ptr = (uint8_t *) pointer;
     new_ptr--;
 
-    if (new_ptr == NULL) return;
+    if ((new_ptr == NULL) | !(*new_ptr & 0x1)) return;
 
-    if (*new_ptr & 0x1) *new_ptr &= 0xFE;
+    uint16_t size_block = *new_ptr >> 1;
+    uint8_t *next_header = new_ptr + size_block + 1;
+
+    //TODO: Same pour le header d'avant
+
+    if ((*next_header != 0) & !(*next_header & 0x1))
+    {
+        // Fusionner les deux blocs en un
+        uint16_t size_total = size_block + (*next_header >> 1) + 1;
+        uint8_t merged_header = size_total << 1;
+        *next_header = 0;
+        *new_ptr = merged_header;
+    } else *new_ptr -= 0x1;
 }
 
 
@@ -91,9 +103,9 @@ void print_HEAP(){
     printf("==== PRINT THE HEAP ====\n");
 
     size_t size = 0;
-    while (1)
+    while (location <= 100)
     {
-        if (MY_HEAP[location] == ((uint8_t) 0)) return;
+        // if (MY_HEAP[location] == ((uint8_t) 0)) return;
         
         size = MY_HEAP[location] >> 1;
 
@@ -124,15 +136,23 @@ int main(int argc, char **argv)
     uint16_t *a = (uint16_t *) my_malloc(4);
     uint8_t *b = (uint8_t *) my_malloc(10);
     uint8_t *c = (uint8_t *) my_malloc(10);
-    *b = (uint8_t) 200;
-    *a = (uint16_t) 2000;
-
-    print_HEAP();
-    my_free(b);
-    print_HEAP();
-
     uint8_t *d = (uint8_t *) my_malloc(11);
     *d = 122;
+    *b = (uint8_t) 200;
+    *a = (uint16_t) 2000;
+    *c = 12;
+
+    print_HEAP();
+
+    my_free(c);
+
+    print_HEAP();
+
+    my_free(b);
+
+    print_HEAP();
+
+
     print_HEAP();
 
     uint8_t *e = (uint8_t *) my_malloc(8);
