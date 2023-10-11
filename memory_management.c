@@ -35,7 +35,7 @@ void *my_malloc(size_t size)
     // Get the first available location
     uint16_t location = 0;
     uint16_t available_size;
-    while(location <= 64000)
+    while(MY_HEAP[location] !=0 || location <= 64000)
     {
         if (MY_HEAP[location] & 0x1)
         {
@@ -43,15 +43,21 @@ void *my_malloc(size_t size)
             location += (MY_HEAP[location] >> 1) + 1;
         } else
         {
+
             // Check if we have enough bytes availables
             available_size = MY_HEAP[location] >> 1;
-            if (size <= available_size) break; break; // Move outside the while loop
+            break; // Move outside the while loop
         }
     }
 
     // If no block available
     if (location > 64000) return NULL;
-
+    if (size < available_size){
+        printf("leftovers %d\n",location);
+        uint16_t leftovers = available_size-size-1;
+        uint8_t freed_header = (leftovers << 1);
+        MY_HEAP[location+1+size] = freed_header;
+    }
     // Write the header
     uint8_t header = (size << 1) + 0x1;
     MY_HEAP[location] = header;
@@ -81,27 +87,38 @@ void my_free(void *ptr)
 
 
 void print_HEAP(){
+
     uint16_t location = 0;
     
     printf("==== PRINT THE HEAP ====\n");
-    while (location <= 64000)
+    size_t size = 0;
+    while (1)
     {
-        size_t size = MY_HEAP[location] >> 1;
-
-        printf("adress: %d, ", location);
-        printf("size: %zu, ", (size));
-
-        if(MY_HEAP[location] & 0x1){
-            printf("value: [ ");
-            for (size_t i = 0; i < size; i++) printf("%x ", MY_HEAP[location + 1 + i]);
-            printf("]\n");
-        } else
-        {
-            printf("value: None (Free Block)\n");
+        // print location
+        if(MY_HEAP[location] == ((uint8_t)0)){
+            return;
         }
-
-        location += size + 1;
+        
+        size = MY_HEAP[location]>>1;
+        if(!(MY_HEAP[location] & 0x1)){
+            printf("free    \t");
+        }else
+        {
+            printf("allocated\t");
+        }
+        printf("adress: %d\t", location);
+        printf("size: %d \t", (size));
+        printf("value: [ ");
+        for (size_t i = location+1; i < location+1+size; i++)
+        {
+            printf("%x ",MY_HEAP[i]);
+        }
+        printf("]\n");
+        
+        // printf("used: %d\n", location+1);
+        location+=size+1;
     }
+
 }
 
 int main(int argc, char **argv)
@@ -109,12 +126,16 @@ int main(int argc, char **argv)
     init();
     uint16_t *a = (uint16_t *) my_malloc(4);
     uint8_t *b = (uint8_t *) my_malloc(10);
-    my_malloc(1);
+    uint8_t *c = (uint8_t *) my_malloc(1);
     *b = (uint8_t)200;
     *a = (uint16_t)2000;
 
     print_HEAP();
 
-    // my_free(b);
-    // print_HEAP();
+
+    my_free(b);
+    print_HEAP();
+
+    uint8_t *d = (uint8_t *) my_malloc(8);
+    print_HEAP();
 }
