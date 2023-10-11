@@ -11,20 +11,52 @@ void init()
     }
 }
 
+
+/*
+* TODO: Trouver un moyen de savoir si le header prend un byte ou deux bytes
+        (tout en gardant le fait qu'on peut encoder 64000 sur 2 bytes).
+* TODO: Fragmenter les blocs de la taille voulu => Si bloc de 10 bytes dispo
+        mais je veux que 4 bytes, alors je fragmente en 4 / 6 ou en 8 / 2 (dépend de l'alignement).
+* TODO: Mettre un header à la fin du bloc aussi (sera utile pour my_free()).
+* TODO: Réfléchir à la méthode pour savoir quel bloc choisir (first fit, best fit, next fit)
+        => Pour l'instant, on a implémenté 'first fit'.
+*/
 void *my_malloc(size_t size)
 {
+    // Check the validity of the arguments
+    if ((size > 64000) || (size <= 0)) return NULL;
+
+    // Get the first available location
     uint16_t location = 0;
-    while(MY_HEAP[location] & 0x1){
-        location+=(MY_HEAP[location]>>1)+1;
+    uint16_t available_size;
+    while(location <= 64000)
+    {
+        if (MY_HEAP[location] & 0x1)
+        {
+            // Move to the next block
+            location += (MY_HEAP[location] >> 1) + 1;
+        } else
+        {
+            // Check if we have enough bytes availables
+            available_size = MY_HEAP[location] >> 1;
+            if (size <= available_size) break; break; // Move outside the while loop
+        }
     }
-    
-    MY_HEAP[location] = (size<<1)+0x1;
-    printf("header: %x\n",MY_HEAP[location]);
 
-    // printf("location: %d\n",location);
+    // If no block available
+    if (location > 64000) return NULL;
 
-    return (void *)((char *)MY_HEAP + location + 1);
+    // Write the header
+    uint8_t header = (size << 1) + 0x1;
+    MY_HEAP[location] = header;
+    printf("header: %x\n", MY_HEAP[location]);
+
+    // Get the adress to the first byte allocated
+    char *adress = ((char *) MY_HEAP + location + 1);
+
+    return (void *) adress;
 }
+
 
 void my_free(void *ptr)
 {
