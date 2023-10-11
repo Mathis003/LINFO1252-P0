@@ -12,6 +12,9 @@ void init()
     {
         MY_HEAP[i] = 0;
     }
+    uint8_t header = (127 << 1);
+    MY_HEAP[0] = header;
+
 }
 
 
@@ -35,7 +38,7 @@ void *my_malloc(size_t size)
     // Get the first available location
     uint16_t location = 0;
     uint16_t available_size;
-    while(MY_HEAP[location] !=0 || location <= 64000)
+    while(location <= 64000)
     {
         if (MY_HEAP[location] & 0x1)
         {
@@ -43,10 +46,14 @@ void *my_malloc(size_t size)
             location += (MY_HEAP[location] >> 1) + 1;
         } else
         {
+            available_size = MY_HEAP[location] >> 1;            
 
-            // Check if we have enough bytes availables
-            available_size = MY_HEAP[location] >> 1;
-            break; // Move outside the while loop
+            // Move outside the while loop if we have enough bytes availables
+            if(size<available_size+1 || MY_HEAP[location]==0){
+                break;
+            }
+
+            location += available_size+1;
         }
     }
 
@@ -55,8 +62,14 @@ void *my_malloc(size_t size)
     if (size < available_size){
         printf("leftovers %d\n",location);
         uint16_t leftovers = available_size-size-1;
-        uint8_t freed_header = (leftovers << 1);
-        MY_HEAP[location+1+size] = freed_header;
+        if(leftovers == 0){
+            size++;
+        }else
+        {
+            uint8_t freed_header = (leftovers << 1);
+            MY_HEAP[location+1+size] = freed_header;
+        }
+        
     }
     // Write the header
     uint8_t header = (size << 1) + 0x1;
@@ -126,7 +139,7 @@ int main(int argc, char **argv)
     init();
     uint16_t *a = (uint16_t *) my_malloc(4);
     uint8_t *b = (uint8_t *) my_malloc(10);
-    uint8_t *c = (uint8_t *) my_malloc(1);
+    uint8_t *c = (uint8_t *) my_malloc(10);
     *b = (uint8_t)200;
     *a = (uint16_t)2000;
 
@@ -136,6 +149,6 @@ int main(int argc, char **argv)
     my_free(b);
     print_HEAP();
 
-    uint8_t *d = (uint8_t *) my_malloc(8);
+    uint8_t *d = (uint8_t *) my_malloc(9);
     print_HEAP();
 }
