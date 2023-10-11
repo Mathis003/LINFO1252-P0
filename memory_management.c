@@ -71,11 +71,11 @@ void *my_malloc(size_t size)
 }
 
 
-void my_free(void *ptr)
+void my_free(void *pointer)
 {
-    if (ptr == NULL) return;
+    if (pointer == NULL) return;
 
-    uint8_t *new_ptr = (uint8_t *) ptr;
+    uint8_t *new_ptr = (uint8_t *) pointer;
     new_ptr--;
 
     if (new_ptr == NULL) return;
