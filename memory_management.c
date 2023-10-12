@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 uint8_t MY_HEAP[64000];
 
@@ -30,7 +31,7 @@ void init()
 */
 void *my_malloc(size_t size)
 {   
-    printf("malloc, size: %ld\n", size);
+    // printf("malloc, size: %ld\n", size);
     // Check the validity of the arguments
     if ((size > 64000) || (size <= 0)) return NULL;
 
@@ -52,22 +53,25 @@ void *my_malloc(size_t size)
         {
             // get available size
             available_size = MY_HEAP[location] + (MY_HEAP[location+1] << 8);
-            
+            uint8_t will_merge = 0;
             // check if next block is free
             while(!(MY_HEAP[location+available_size+2] & 1) && (location+available_size+2 < 64000)){
+                will_merge = 1;
                 available_size += MY_HEAP[location+available_size+2] + (MY_HEAP[location+available_size+3] << 8)+2;
             }
 
-            printf("available_size: %d\n", available_size);
+            // printf("available_size: %d\n", available_size);
             
 
             // Move outside the while loop if we have enough bytes availables
             if(size <= available_size || MY_HEAP[location]==0){
-                // if(size+2 >= available_size){
-                //     size = available_size;
-                // }
                 break;
+            }else if(will_merge)
+            {
+                MY_HEAP[location] = available_size;
+                MY_HEAP[location+1] = available_size >> 8;
             }
+            
             location += available_size+2;
         }
     }
@@ -75,13 +79,12 @@ void *my_malloc(size_t size)
     if (location+size+2 >= 64000) return NULL;
     if (size < available_size){
         uint16_t leftovers = available_size-size-2;
-        printf("leftovers %d\n",leftovers);
 
         if(leftovers & 1){
             leftovers++;
         }
 
-        printf("leftovers %d\n",leftovers);
+        // printf("leftovers %d\n",leftovers);
 
         // printf("location+size+2 %d\n",location+size+2);
         MY_HEAP[location+size+2] = leftovers;
@@ -95,11 +98,7 @@ void *my_malloc(size_t size)
     // printf("header: %x\n", MY_HEAP[location]);
     // Get the adress to the first byte allocated
     char *adress = ((char *) MY_HEAP + location + 2);
-
-
-    uint16_t b = (MY_HEAP[0]&0xFE) + (MY_HEAP[1] << 8);
   
-    // printf("Hello, World! %d %ld\n",b, size);
     
     return (void *) adress;
 
@@ -126,7 +125,7 @@ void print_HEAP(){
     uint16_t location = 0;
     size_t size = 0;
 
-    while (location <= 64000)
+    while (location < 64000)
     {
         
         size = (MY_HEAP[location] & 0xFE) + (MY_HEAP[location+1] << 8);
@@ -170,56 +169,71 @@ int main(int argc, char **argv)
     init();
     print_HEAP();
 
-    uint8_t *first = (uint8_t *) my_malloc(2);
-    *first = 132;
-    print_HEAP();
+    // uint8_t *first = (uint8_t *) my_malloc(2);
+    // *first = 132;
+    // print_HEAP();
 
-    uint8_t *second = (uint8_t *) my_malloc(11);
-    *second = 1;
+    // uint8_t *second = (uint8_t *) my_malloc(11);
+    // *second = 1;
 
-    uint8_t *third = (uint8_t *) my_malloc(42);
-    *third = 243;
-    uint8_t *a = my_malloc(130);
-    uint8_t *b = my_malloc(1540);
+    // uint8_t *third = (uint8_t *) my_malloc(42);
+    // *third = 243;
+
+    
+    uint8_t *a = my_malloc(10);
+    uint8_t *b = my_malloc(10);
     uint8_t *c = my_malloc(22);
     uint8_t *d = my_malloc(30);
     uint8_t *e = my_malloc(30);
-    my_malloc(18);
 
     print_HEAP();
 
-    my_free(first);
-    print_HEAP();
-
-    my_free(third);
-    print_HEAP();
-
-    my_free(second);
-
-    print_HEAP();
-    
-    uint8_t *fourth = (uint8_t *) my_malloc(14);
-    *fourth = 1;
-
-    print_HEAP();
-
-    my_free(c);
+    my_free(a);
+    my_free(b);
     my_free(d);
-
-    print_HEAP();
-
-    uint8_t *f = my_malloc(52);
-
-    print_HEAP();
-
     my_free(e);
 
     print_HEAP();
 
-    uint8_t *g = my_malloc(40);
-    uint8_t *h = my_malloc(32);
-    
+    uint8_t *f = my_malloc(30);
+
     print_HEAP();
+
+    // my_free(first);
+    // print_HEAP();
+
+    // my_free(third);
+    // print_HEAP();
+
+    // my_free(second);
+
+    // print_HEAP();
+    
+    // uint8_t *fourth = (uint8_t *) my_malloc(14);
+    // *fourth = 1;
+
+    // print_HEAP();
+
+    // my_free(c);
+    // my_free(d);
+
+    // print_HEAP();
+
+    // uint8_t *i = my_malloc(1);
+    // print_HEAP();
+
+    // uint8_t *f = my_malloc(52);
+
+    // print_HEAP();
+
+    // my_free(e);
+
+    // print_HEAP();
+
+    // uint8_t *g = my_malloc(40);
+    // uint8_t *h = my_malloc(32);
+    
+    // print_HEAP();
     // uint8_t *fitht = (uint8_t *) my_malloc(30);
     // *fitht = 1;
 
