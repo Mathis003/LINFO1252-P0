@@ -13,7 +13,7 @@ void init()
         MY_HEAP[i] = 0;
     }
     
-    uint8_t header = 255 << 1;
+    uint8_t header = 120 << 1;
     MY_HEAP[0] = header;
 }
 
@@ -22,9 +22,7 @@ void init()
 * TODO: Trouver un moyen de savoir si le header prend un byte ou deux bytes.
 * TODO: !! au types (uint8_t / uint16_t / size_t) => Pour l'instant, c'est un peu au pif.
         (tout en gardant le fait qu'on peut encoder 64000 sur 2 bytes).
-* TODO: Fragmenter les blocs de la taille voulu => Si bloc de 10 bytes dispo
-        mais je veux que 4 bytes, alors je fragmente en 4 / 6 ou en 8 / 2 (dépend de l'alignement).
-* TODO: Mettre un header à la fin du bloc aussi (sera utile pour my_free()).
+* TODO: Trouver le bon alignement et l'implémenter.
 * TODO: Réfléchir à la méthode pour savoir quel bloc choisir (first fit, best fit, next fit)
         => Pour l'instant, on a implémenté 'first fit'.
 * TODO: Faire en sorte que les blocs disponibles soit rassemblés en gros bloc de grande taille
@@ -56,14 +54,6 @@ void *my_malloc(size_t size)
                 {
                     uint8_t headers = (size << 1) + 0x1;
                     uint8_t new_headers = (remaining_size - size) << 1;
-
-                    // printf("size headers: %d\n", size);
-                    // printf("size new_headers: %d\n", remaining_size - size);      
-
-                    // printf("headers_begin: %d\n", current_location);
-                    // printf("headers_end: %d\n", current_location + size + 1);
-                    // printf("new_headers_begin: %d\n", current_location + size + 2);
-                    // printf("new_headers_end: %d\n", current_location + available_size + 1);
 
                     MY_HEAP[current_location] = headers;
                     MY_HEAP[current_location + size + 1] = headers;
@@ -139,7 +129,11 @@ void print_HEAP(){
     size_t size = 0;
     while (location <= 64000)
     {
-        if (MY_HEAP[location] == ((uint8_t) 0)) return;
+        if (MY_HEAP[location] == 0)
+        {
+            printf("\n");
+            return;
+        }
         
         size = MY_HEAP[location] >> 1;
 
