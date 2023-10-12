@@ -13,7 +13,7 @@ void init()
         MY_HEAP[i] = 0;
     }
     
-    uint8_t header = UINT16_MAX << 1;
+    uint8_t header = 255 << 1;
     MY_HEAP[0] = header;
 }
 
@@ -97,11 +97,11 @@ void my_free(void *pointer)
 
     uint8_t size_block = *ptr >> 1;
     uint8_t *next_header = ptr + (size_block + 2);
-
-    uint8_t *previous_header = ptr - ((*(ptr--) >> 1) + 2);
+    ptr--;
+    uint8_t size_previous_block = *ptr >> 1;
     ptr++;
-
-    uint8_t size_total = size_block + 1;
+    uint8_t *previous_header = ptr - (size_previous_block + 2);
+    uint8_t size_total = size_block;
     uint8_t merged_header = *ptr - 0x1;
 
     if ((next_header != NULL) & (*next_header != 0x0) & !(*next_header & 0x1))
@@ -126,7 +126,7 @@ void my_free(void *pointer)
     }
 
     *ptr = merged_header;
-    *(ptr + size_total + 1) = merged_header;
+    *(ptr + size_total) = merged_header;
 }
 
 
@@ -137,9 +137,9 @@ void print_HEAP(){
     printf("==== PRINT THE HEAP ====\n");
 
     size_t size = 0;
-    while (location <= 45)
+    while (location <= 64000)
     {
-        // if (MY_HEAP[location] == ((uint8_t) 0)) return;
+        if (MY_HEAP[location] == ((uint8_t) 0)) return;
         
         size = MY_HEAP[location] >> 1;
 
@@ -167,30 +167,23 @@ int main(int argc, char **argv)
     init();
     print_HEAP();
 
-    uint16_t *a = (uint16_t *) my_malloc(4);
-    *a = (uint16_t) 2000;
+    uint8_t *first = (uint8_t *) my_malloc(2);
+    *first = 132;
+
+    uint8_t *second = (uint8_t *) my_malloc(3);
+    *second = 1;
+
+    uint8_t *third = (uint8_t *) my_malloc(42);
+    *third = 243;
 
     print_HEAP();
 
-    my_free(a);
-
+    my_free(first);
     print_HEAP();
 
-    uint8_t *b = (uint8_t *) my_malloc(10);
-    uint8_t *c = (uint8_t *) my_malloc(8);
-    uint8_t *d = (uint8_t *) my_malloc(11);
-    *d = 122;
-    *b = (uint8_t) 200;
-    *c = 12;
-
-    my_free(b);
-
+    my_free(third);
     print_HEAP();
 
-
-    // print_HEAP();
-
-    // uint8_t *e = (uint8_t *) my_malloc(8);
-    // *e = 902;
-    // print_HEAP();
+    my_free(second);
+    print_HEAP();
 }
