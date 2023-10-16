@@ -35,30 +35,53 @@ fonction free_block, prenant en argument l'adresse du header à libérer h:
     }
 */
 
-
-
 void init()
 {
+    const uint16_t HEAP_SIZE = 64000;
+    const uint16_t NBERS_BYTES = 2;
+
     // Clear memory from index 4 to 63999
     for (uint16_t i = 4; i < 64000; i++) MY_HEAP[i] = 0; 
 
-    // Initialize the index of the next block (update it when we allocate a new block)
-    MY_HEAP[0] = 2;
-    MY_HEAP[1] = 0;
-    
-    // Initialize header bytes
-    MY_HEAP[2] = 0xFC;
-    MY_HEAP[3] = 0xF9;
+    // Initialize the next-fit offset
+    uint8_t *nextfit_ptr = (uint8_t *) MY_HEAP;
+    *nextfit_ptr = NBERS_BYTES; // The next free block is the first one (index 2)
+
+    // Initialize the first block
+    uint16_t *first_block = (uint16_t *) (MY_HEAP + NBERS_BYTES);
+
+    uint16_t first_block_size = HEAP_SIZE - NBERS_BYTES; // 63998 bytes available
+    uint16_t next_free_block_offset = 0; // No next free block
+
+    *first_block = first_block_size;
+
+    // TODO: To implement (linked list for free-blocks)
+    *(first_block + 1) = next_free_block_offset;
 }
 
 
 void *my_malloc(size_t size)
 {   
+    const uint16_t HEAP_SIZE = 64000;
+    const uint16_t NBERS_BYTES = 2;
+
+    // TODO: To implement (linked list for free-blocks)
+    // size += 2 * NBERS_BYTES; // Add 4 bytes for the twos headers
+
     // Check the validity of the arguments
-    if ((size > 63996) || (size <= 0)) return NULL;
+    if ((size > HEAP_SIZE) || (size <= 0)) return NULL;
+
+    // TODO: To implement (linked list for free-blocks)
+    // uint8_t min_size_block = 3 * NBERS_BYTES;
+    // size = size < min_size_block ? min_size_block : size;
 
     // If uneven, add 1
     if (size & 1) size++;
+
+    // TODO: To implement (linked list for free-blocks)
+    // uint16_t *nextfit_ptr = (uint16_t *) MY_HEAP;
+    // uint16_t *current_block = (uint16_t *) MY_HEAP + *nextfit_ptr;
+    // uint16_t current_block_size = *current_block;
 
     // Get the current location in the heap
     uint16_t location = MY_HEAP[0] + (MY_HEAP[1] << 8);
@@ -289,6 +312,8 @@ void size_too_low()
 
 int main(int argc, char **argv)
 {
+    init();
+
     size_too_big();
     size_too_low();
     one_allocation();
