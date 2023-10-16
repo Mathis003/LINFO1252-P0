@@ -4,6 +4,39 @@
 uint8_t MY_HEAP[64000];
 
 
+/*
+Examples of pseudo-code (come from syllabus) :
+
+parcours d'une liste implicite:
+    h = start;
+    while (h < end &&           // fin de liste ?
+        ((*h & 0x1) != 0 ||  // déjà alloué
+            *h <= len)) {        // trou trop petit
+        h = h + (*h & ~0x1);    // progresse vers le prochain bloc
+    }
+
+fonction de placement d'un nouveau bloc de taille len à l'adresse pointée par h et retournée précédemment:
+    void place_block(ptr h, int len) {
+        int newsize = len + 1;                // ajoute 1 mot pour le header
+        int oldsize = *h & ~0x1;              // récupère taille actuelle sans bit de poids faible
+        *h = newsize | 0x1;                   // nouvelle taille avec bit de poids faible à 1
+        if (newsize < oldsize)                // s'il reste de la place ...
+            *(h + newsize) = oldsize - newsize; // nouveau bloc vide avec la taille restante et bit de poids faible à 0
+        }
+    }  
+
+fonction free_block, prenant en argument l'adresse du header à libérer h:
+    void free_block(ptr h) {
+        *h = *h & ~0x1;          // remise à 0 du drapeau
+        next = h + *h;           // calcul de l'adresse du header du bloc suivant
+        if ((*next & 0x1) == 0)  // si ce bloc est aussi libre ...
+            *h = *h + *next;       // combiner les blocs
+        }
+    }
+*/
+
+
+
 void init()
 {
     // Clear memory from index 4 to 63999
