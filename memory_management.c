@@ -184,8 +184,6 @@ void print_HEAP()
 
 
 
-
-
 void one_allocation()
 {
     init();
@@ -199,11 +197,17 @@ void multi_big_allocation()
 {
     init();
     uint8_t *premier = (uint8_t *) my_malloc(7001);
+    *premier = 132;
     uint8_t *deuxieme = (uint8_t *) my_malloc(34562);
+    *deuxieme = 1;
     uint8_t *troisieme = (uint8_t *) my_malloc(1);
+    *troisieme = 243;
     uint8_t *quatre = (uint8_t *) my_malloc(3);
+    *quatre = 1;
     uint8_t *cinq = (uint8_t *) my_malloc(3);
+    *cinq = 1;
     uint8_t *six = (uint8_t *) my_malloc(22412);
+    *six = 1;
     print_HEAP();
     init();
 }
@@ -255,6 +259,7 @@ void merged_free()
     my_free(premier);
 
     uint8_t *sept = (uint8_t *) my_malloc(6);
+    *sept = 1;
     print_HEAP();
     init();
 }
@@ -284,12 +289,12 @@ void size_too_low()
 
 int main(int argc, char **argv)
 {
-    // size_too_big();
-    // size_too_low();
-    // one_allocation();
-    // one_free();
-    // multi_big_allocation();
-    // multi_big_free();
+    size_too_big();
+    size_too_low();
+    one_allocation();
+    one_free();
+    multi_big_allocation();
+    multi_big_free();
     merged_free();
 
     // init();
