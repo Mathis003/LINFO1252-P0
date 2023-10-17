@@ -41,7 +41,7 @@ void init()
     const uint16_t NBERS_BYTES = 2;
 
     // Clear memory from index 4 to 63999
-    for (uint16_t i = 4; i < 64000; i++) MY_HEAP[i] = 0; 
+    for (uint16_t i = 0; i < 64000; i++) MY_HEAP[i] = 0; 
 
     // Initialize the next-fit offset
     uint8_t *nextfit_ptr = (uint8_t *) MY_HEAP;
@@ -50,7 +50,7 @@ void init()
     // Initialize the first block
     uint16_t *first_block = (uint16_t *) (MY_HEAP + NBERS_BYTES);
 
-    uint16_t first_block_size = HEAP_SIZE - NBERS_BYTES; // 63998 bytes available
+    uint16_t first_block_size = HEAP_SIZE - (NBERS_BYTES*2); // 63996 bytes available
     uint16_t next_free_block_offset = 0; // No next free block
 
     *first_block = first_block_size;
@@ -69,7 +69,7 @@ void *my_malloc(size_t size)
     // size += 2 * NBERS_BYTES; // Add 4 bytes for the twos headers
 
     // Check the validity of the arguments
-    if ((size > HEAP_SIZE) || (size <= 0)) return NULL;
+    if ((size >= HEAP_SIZE - NBERS_BYTES) || (size <= 0)) return NULL;
 
     // TODO: To implement (linked list for free-blocks)
     // uint8_t min_size_block = 3 * NBERS_BYTES;
@@ -84,12 +84,14 @@ void *my_malloc(size_t size)
     // uint16_t current_block_size = *current_block;
 
     // Get the current location in the heap
-    uint16_t location = MY_HEAP[0] + (MY_HEAP[1] << 8);
+    uint16_t initial_location = MY_HEAP[0] + (MY_HEAP[1] << 8);
+    uint16_t location = initial_location;
     uint16_t available_size;
     uint16_t next_header_location;
     uint8_t will_merge;
+    uint8_t has_looped = 0;
 
-    while (location + 1 < 64000)
+    while ((location + 1 < 64000 && has_looped == 0) || (has_looped == 1 && location < initial_location))
     {
         if (MY_HEAP[location] & 0x1)
         {
@@ -120,6 +122,12 @@ void *my_malloc(size_t size)
             }
             location += available_size + 2;
         }
+
+        if(location >= 64000 && has_looped == 0){
+            has_looped = 1;
+            location = 2;
+        }
+
     }
 
     uint16_t next_block_header = location + size + 2;
@@ -130,7 +138,6 @@ void *my_malloc(size_t size)
     if (size < available_size)
     {
         uint16_t leftovers = available_size - (size + 2);
-        if (leftovers & 0x1) leftovers++;
 
         MY_HEAP[next_block_header] = leftovers;
         MY_HEAP[next_block_header + 1] = leftovers >> 8;;
@@ -187,7 +194,7 @@ void print_HEAP()
         else
         {
             uint16_t zero_counter = 0;
-            for (uint16_t i = location + 1; i < location + size + 1; i++)
+            for (uint16_t i = location + 2; i < location + size + 2; i++)
             {
                 if (MY_HEAP[i] == 0) zero_counter++;                
                 else
@@ -209,6 +216,8 @@ void print_HEAP()
 
 void one_allocation()
 {
+    printf("one_allocation\n"); 
+
     init();
     uint8_t *first = (uint8_t *) my_malloc(7);
     *first = 132;
@@ -218,6 +227,8 @@ void one_allocation()
 
 void multi_big_allocation()
 {
+    printf("multi_big_allocation\n");
+
     init();
     uint8_t *premier = (uint8_t *) my_malloc(7001);
     *premier = 132;
@@ -237,6 +248,8 @@ void multi_big_allocation()
 
 void one_free()
 {
+    printf("one_free\n");
+
     init();
     uint8_t *first = (uint8_t *) my_malloc(7);
     *first = 132;
@@ -248,6 +261,8 @@ void one_free()
 
 void multi_big_free()
 {
+    printf("multi_big_free\n");
+
     init();
     uint8_t *premier = (uint8_t *) my_malloc(7001);
     uint8_t *deuxieme = (uint8_t *) my_malloc(34562);
@@ -267,6 +282,8 @@ void multi_big_free()
 
 void merged_free()
 {
+    printf("merged_free\n");
+
     init();
     uint8_t *premier = (uint8_t *) my_malloc(3);
     uint8_t *deuxieme = (uint8_t *) my_malloc(3);
@@ -289,16 +306,42 @@ void merged_free()
 
 void size_too_big()
 {
+    printf("size_too_big\n");
+
     init();
-    uint8_t *all_memory = (uint8_t *) my_malloc(64000);
+    uint8_t *all_memory = (uint8_t *) my_malloc(63997);
 
     if (all_memory == NULL) printf("=== Test Passed ===\n");
     else printf("=== Test Failed ===\n");
+    print_HEAP();
+    init();
+}
+
+void max_allocation()
+{
+    printf("max_allocation\n");
+
+    init();
+    uint8_t *all_memory = (uint8_t *) my_malloc(63990);
+
+    print_HEAP();
+
+    my_free(all_memory);
+
+    
+    uint8_t *some_memory_again = (uint8_t *) my_malloc(400);
+
+    uint8_t *some_memory_again2 = (uint8_t *) my_malloc(200);
+
+    print_HEAP();
+
     init();
 }
 
 void size_too_low()
 {
+    printf("size_too_low\n");
+    
     init();
     uint8_t *no_memory1 = (uint8_t *) my_malloc(0);
     uint8_t *no_memory2 = (uint8_t *) my_malloc(-302);
@@ -314,6 +357,9 @@ int main(int argc, char **argv)
 {
     init();
 
+    print_HEAP();
+
+
     size_too_big();
     size_too_low();
     one_allocation();
@@ -321,6 +367,8 @@ int main(int argc, char **argv)
     multi_big_allocation();
     multi_big_free();
     merged_free();
+
+    max_allocation();
 
     // init();
     // print_HEAP();
