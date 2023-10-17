@@ -91,7 +91,7 @@ void *my_malloc(size_t size)
     uint8_t will_merge;
     uint8_t has_looped = 0;
 
-    while ((location + 1 < 64000 && has_looped == 0) || (has_looped == 1 && location < initial_location))
+    while ((location + 1 < 64000 && has_looped == 0) || (has_looped == 1 && location <= initial_location))
     {
         if (MY_HEAP[location] & 0x1)
         {
@@ -322,18 +322,33 @@ void max_allocation()
     printf("max_allocation\n");
 
     init();
-    uint8_t *all_memory = (uint8_t *) my_malloc(63990);
+    uint8_t *all_memory = (uint8_t *) my_malloc(63996);
 
     print_HEAP();
 
     my_free(all_memory);
 
-    
-    uint8_t *some_memory_again = (uint8_t *) my_malloc(400);
 
-    uint8_t *some_memory_again2 = (uint8_t *) my_malloc(200);
+
+    
+    uint8_t *a = (uint8_t *) my_malloc(400);
+
+    uint8_t *b = (uint8_t *) my_malloc(63300);
+
+    uint8_t *c = (uint8_t *) my_malloc(200);
+
+    // print_HEAP();
+
+    my_free(b);
+
+    // print_HEAP();
+
+    uint8_t *d = (uint8_t *) my_malloc(400);
 
     print_HEAP();
+
+    if (d != NULL) printf("=== Test Passed ===\n");
+    else printf("=== Test Failed ===\n");
 
     init();
 }
@@ -367,7 +382,6 @@ int main(int argc, char **argv)
     multi_big_allocation();
     multi_big_free();
     merged_free();
-
     max_allocation();
 
     // init();
