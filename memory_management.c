@@ -82,13 +82,14 @@ void *my_malloc(size_t size, uint8_t verbose)
 
     while (((loc < HEAP_SIZE / 2) && !has_looped) || (has_looped && (loc <= initial_loc)))
     {
-        available_size = my_heap[loc];
-        if (available_size & 0x1) // If the block is allocated
+        if (my_heap[loc] & 0x1) // If the block is allocated
         {
-            loc += (available_size - 1 + SIZE_HEADER) / 2;
+            loc += (my_heap[loc] - 1 + SIZE_HEADER) / 2;
         } else // If the block is free
         {
+            available_size = my_heap[loc];
             merge_next_free_blocks(my_heap, loc, &available_size);
+
             // If the block is big enough
             if (size <= available_size)
             {
@@ -99,12 +100,13 @@ void *my_malloc(size_t size, uint8_t verbose)
             }
 
             loc += (available_size + SIZE_HEADER) / 2;
+            printf("loc: %d\n", loc);
         }
 
         if (loc >= HEAP_SIZE / 2 && has_looped == 0)
         {
             has_looped = 1;
-            loc = 2;
+            loc = 1;
         }
     }
     return NULL;
@@ -184,47 +186,9 @@ int main(int argc, char **argv)
 {
     init();
 
-    uint8_t *first = (uint8_t *) my_malloc(2, 0);
-    *first = 2;
+    uint8_t *first = (uint8_t *) my_malloc(63992, 0);
+
+    print_HEAP();
     uint8_t *second = (uint8_t *) my_malloc(11, 0);
-    *second = 1;
-    uint8_t *third = (uint8_t *) my_malloc(42, 0);
-    *third = 243;
-
-    uint8_t *a = my_malloc(10, 0);
-    uint8_t *b = my_malloc(10, 0);
-    uint8_t *c = my_malloc(22, 0);
-    uint8_t *d = my_malloc(30, 0);
-    uint8_t *e = my_malloc(30, 0);
-
-    *b = 5;
-    *c = 5;
-    *d = 5;
-    *e = 5;
-    *a = 5;
-
-    print_HEAP();
-
-    my_free(a);
-    my_free(b);
-    my_free(d);
-    my_free(e);
-
-    uint8_t *f = my_malloc(45, 0);
-
-    print_HEAP();
-    uint8_t *h = my_malloc(63806, 1);
-    // uint8_t *dd = my_malloc(19, 0);
-    *f = 5;
-    // *h = 5;
-    // *dd = 5;
-
-    // my_free(dd);
-
-    // my_free(third);
-    // my_free(h);
-    // my_free(f);
-    // my_free(c);
-
     print_HEAP();
 }
