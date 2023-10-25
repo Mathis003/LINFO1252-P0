@@ -67,7 +67,7 @@ uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t ava
     else if (next_loc == HEAP_SIZE / 2)
     {
         my_heap[loc] = size;
-        my_heap[0] = 0;
+        my_heap[0] = 1;
     }
 
     // General case: If the block is not the last one and are available in the heap
@@ -109,7 +109,7 @@ void looped(uint16_t *loc, uint8_t *has_looped)
     if (*loc >= HEAP_SIZE / 2 && !(*has_looped))
     {
         *has_looped = 1;
-        *loc = 0;
+        *loc = 1;
     }
 }
 
@@ -348,7 +348,26 @@ void test_nextfit(){
     printf("test_nextfit passed\n");
 }
 
+void new_test(){
+    init();
 
+    uint8_t *a = (uint8_t *) my_malloc(100);
+    print_HEAP();
+    uint8_t *b = (uint8_t *) my_malloc(63894);
+
+    print_HEAP();
+
+    my_free(a);
+
+    print_HEAP();
+
+    uint8_t *c = (uint8_t *) my_malloc(10);
+
+    printf("c==NULL: %p\n", c);
+
+    
+    print_HEAP();
+}
 
 int main(int argc, char *argv[])
 {
@@ -356,6 +375,10 @@ int main(int argc, char *argv[])
     printf("Empty HEAP:\n");
     init();
     print_HEAP();
+
+    new_test();
+
+    // return 0;
 
     init();
 
