@@ -4,7 +4,6 @@
 
 const uint16_t HEAP_SIZE = 64000;
 const uint8_t SIZE_HEADER = 2;
-uint16_t nextfit_offset;
 
 uint8_t MY_HEAP[64000];
 
@@ -13,8 +12,8 @@ void init()
 {
     uint16_t *my_heap = (uint16_t *) MY_HEAP;
 
-    nextfit_offset = 0;                    // nextfit offset
-    my_heap[0] = HEAP_SIZE - SIZE_HEADER;  // size of the first free block
+    my_heap[0] = 1;                            // nextfit offset
+    my_heap[1] = HEAP_SIZE - 2 * SIZE_HEADER;  // size of the first free block
 }
 
 
@@ -61,15 +60,15 @@ uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t ava
 
     uint16_t next_loc = loc + (size + SIZE_HEADER) / 2;
 
+    // Special case: If the block is not available in the heap (special case)
+    if (next_loc > HEAP_SIZE / 2) return 0; // Return 0 to indicate EXIT_FAILURE
+
     // Special case: If the block is the last one (with no header after it) (special case)
-    if (next_loc == HEAP_SIZE / 2)
+    else if (next_loc == HEAP_SIZE / 2)
     {
         my_heap[loc] = size;
-        nextfit_offset = 0;
+        my_heap[0] = 0;
     }
-
-    // Special case: If the block is not available in the heap (special case)
-    else if (next_loc > HEAP_SIZE / 2) return 0; // Return 0 to indicate EXIT_FAILURE
 
     // General case: If the block is not the last one and are available in the heap
     else
@@ -80,17 +79,17 @@ uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t ava
             uint16_t leftovers = available_size - (size + SIZE_HEADER);
             my_heap[loc] = size;
             my_heap[next_loc] = leftovers;
-            nextfit_offset = next_loc;
+            my_heap[0] = next_loc;
         }
         
         // Allocate the whole block
         else 
         {
             my_heap[loc] = available_size;
-            nextfit_offset = loc + (available_size + SIZE_HEADER) / 2;
+            my_heap[0] = loc + (available_size + SIZE_HEADER) / 2;
 
             // Special case: If the block is the last one (with no header after it) (special case)
-            if (nextfit_offset == HEAP_SIZE / 2) nextfit_offset = 0;
+            if (my_heap[0] == HEAP_SIZE / 2) my_heap[0] = 0;
         }
     }
 
@@ -118,14 +117,14 @@ void looped(uint16_t *loc, uint8_t *has_looped)
 void *my_malloc(size_t size)
 {
     // Check the validity of the arguments
-    if ((size > HEAP_SIZE - SIZE_HEADER) || (size <= 0)) return NULL;
+    if ((size > HEAP_SIZE - 2 * SIZE_HEADER) || (size <= 0)) return NULL;
 
     uint16_t *my_heap = (uint16_t *) MY_HEAP;
 
     // If size is uneven, add 1
     if (size & 0x1) size++;
 
-    uint16_t initial_loc = nextfit_offset;
+    uint16_t initial_loc = my_heap[0];
     uint16_t loc = initial_loc;
 
     uint16_t available_size;
@@ -136,7 +135,7 @@ void *my_malloc(size_t size)
             (has_looped && (loc <= initial_loc)))     // If we have looped and we haven't reached the initial loc
     {
         // If the block is allocated, go to the next one
-        if (my_heap[loc] & 0x1) loc += (my_heap[loc] - 1 + SIZE_HEADER) / 2;
+        if (my_heap[loc] & 0x1) loc += (my_heap[loc] - 0x1 + SIZE_HEADER) / 2;
 
         // If the block is free, check if we can merge it with the next ones and then check if we can allocate it
         else
@@ -174,7 +173,7 @@ void my_free(void *pointer)
     merge_next_free_blocks(my_heap, loc);
 
     // If the nextfit offset is in the middle of the merged blocks, update it at the beginning of the merged blocks
-    if ((loc < nextfit_offset) && nextfit_offset <= loc + my_heap[loc] / 2) nextfit_offset = loc;
+    if ((loc < my_heap[0]) && my_heap[0] <= loc + my_heap[loc] / 2) my_heap[0] = loc;
 
     pointer = NULL;
 }
@@ -185,8 +184,13 @@ void print_HEAP()
 {
     printf("==== PRINT THE HEAP ====\n");
 
-    uint16_t loc = 0;
+    uint16_t loc = 2;
     uint16_t size;
+
+    printf("nextfit offset\t");
+    printf("adress: %d\t", 0);
+    printf("size: %d \t", 2);
+    printf("value: %d\n", 2 * ((MY_HEAP[0] & 0xFF) + (MY_HEAP[1] << 8)));
 
     while (loc < HEAP_SIZE)
     {
@@ -399,7 +403,7 @@ int main(int argc, char *argv[])
     void *big_malloc2 = my_malloc(10000);
     void *big_malloc3 = my_malloc(10000);
     void *big_malloc4 = my_malloc(20000);
-    void *big_malloc5 = my_malloc(3990);
+    void *big_malloc5 = my_malloc(3988);
     print_HEAP();
 
 
