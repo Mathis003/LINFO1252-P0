@@ -54,17 +54,12 @@ uint16_t merge_next_free_blocks(uint16_t *my_heap, uint16_t loc)
 * @param size:             size requested by the user for the allocatation
 * @return:                 1 if the block has been allocated, 0 otherwise
 */
-uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t available_size, uint16_t size)
+void initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t available_size, uint16_t size)
 {
-    if (size > available_size) return 0; // Return 0 to indicate EXIT_FAILURE
-
     uint16_t next_loc = loc + (size + SIZE_HEADER) / 2;
 
-    // Special case: If the block is not available in the heap (special case)
-    if (next_loc > HEAP_SIZE / 2) return 0; // Return 0 to indicate EXIT_FAILURE
-
     // Special case: If the block is the last one (with no header after it) (special case)
-    else if (next_loc == HEAP_SIZE / 2)
+    if (next_loc == HEAP_SIZE / 2)
     {
         my_heap[loc] = size;
         my_heap[0] = 1;
@@ -87,14 +82,10 @@ uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t ava
         {
             my_heap[loc] = available_size;
             my_heap[0] = loc + (available_size + SIZE_HEADER) / 2;
-
-            // Special case: If the block is the last one (with no header after it) (special case)
-            if (my_heap[0] == HEAP_SIZE / 2) my_heap[0] = 0;
         }
     }
 
     my_heap[loc] += 0x1;  // Mark the block as allocated
-    return 1;             // Return 1 to indicate EXIT_SUCCESS
 }
 
 
@@ -128,7 +119,6 @@ void *my_malloc(size_t size)
     uint16_t loc = initial_loc;
 
     uint16_t available_size;
-    uint8_t success_allocation;
     uint8_t has_looped = 0;
 
     while (((loc < HEAP_SIZE / 2) && !has_looped) ||  // If we haven't reached the end of the heap and we haven't looped
@@ -141,10 +131,11 @@ void *my_malloc(size_t size)
         else
         {
             available_size = merge_next_free_blocks(my_heap, loc);
-            success_allocation = initialize_allocated_block(my_heap, loc, available_size, size);
-
-            if (success_allocation) return (void *) (MY_HEAP + 2 * loc + SIZE_HEADER);
-            else loc += (available_size + SIZE_HEADER) / 2;
+            if (size <= available_size)
+            {
+                initialize_allocated_block(my_heap, loc, available_size, size);
+                return (void *) (MY_HEAP + 2 * loc + SIZE_HEADER);
+            } else loc += (available_size + SIZE_HEADER) / 2;
         }
 
         // If we reached the end of the heap, start from the beginning
@@ -376,10 +367,6 @@ int main(int argc, char *argv[])
     init();
     print_HEAP();
 
-    new_test();
-
-    // return 0;
-
     init();
 
     //** Invalid Argument Malloc **//
@@ -503,4 +490,5 @@ int main(int argc, char *argv[])
     test_overlap();
     test_free();
     test_nextfit();
+    new_test();
 }
