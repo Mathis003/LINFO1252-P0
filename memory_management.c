@@ -342,18 +342,12 @@ void test_nextfit(){
     // print_HEAP();
 
     printf("test_nextfit passed\n");
-
 }
 
 
 
 int main(int argc, char *argv[])
 {
-
-    test_overlap();
-    test_free();
-    test_nextfit();
-
     //** Empty HEAP **//
     printf("Empty HEAP:\n");
     init();
@@ -390,13 +384,11 @@ int main(int argc, char *argv[])
     //** Simple Free **//
     printf("Simple Free:\n");
     my_free(simple_malloc);
-    if (simple_malloc != NULL) printf("Error: the free ptr is not well free\n");
     print_HEAP();
 
     //** Free With Merged Next Block (Only One) **//
     printf("Free With Merged Next Block (Only One):\n");
     my_free(other_malloc);
-    if (other_malloc != NULL) printf("Error: the free ptr is not well free\n");
     print_HEAP();
 
     init();
@@ -480,5 +472,8 @@ int main(int argc, char *argv[])
     my_malloc(84);
     print_HEAP();
 
-
+    //** OTHER TESTS **//
+    test_overlap();
+    test_free();
+    test_nextfit();
 }
