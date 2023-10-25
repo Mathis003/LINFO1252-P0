@@ -87,6 +87,9 @@ uint8_t initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t ava
         {
             my_heap[loc] = available_size;
             nextfit_offset = loc + (available_size + SIZE_HEADER) / 2;
+
+            // Special case: If the block is the last one (with no header after it) (special case)
+            if (nextfit_offset == HEAP_SIZE / 2) nextfit_offset = 0;
         }
     }
 
@@ -171,6 +174,8 @@ void my_free(void *pointer)
 
     // If the nextfit offset is in the middle of the merged blocks, update it at the beginning of the merged blocks
     if ((loc < nextfit_offset) && nextfit_offset <= loc + my_heap[loc] / 2) nextfit_offset = loc;
+
+    pointer = NULL;
 }
 
 
@@ -218,63 +223,129 @@ void print_HEAP()
 
 int main(int argc, char *argv[])
 {
+    //** Empty HEAP **//
+    printf("Empty HEAP:\n");
     init();
     print_HEAP();
 
-    uint8_t *a = (uint8_t *) my_malloc(2);
+    init();
+
+    //** Invalid Argument Malloc **//
+    printf("Invalid Argument Malloc:\n");
+    void *invalid_malloc1 = my_malloc(0);
+    void *invalid_malloc2 = my_malloc(-2);
+    void *invalid_malloc3 = my_malloc(64000);
+    void *invalid_malloc4 = my_malloc(63999);
+    if (invalid_malloc1 != NULL) printf("Error!");
+    if (invalid_malloc2 != NULL) printf("Error!");
+    if (invalid_malloc3 != NULL) printf("Error!");
+    if (invalid_malloc4 != NULL) printf("Error!");
     print_HEAP();
 
-    uint8_t *b = (uint8_t *) my_malloc(11);
+
+    //** Simple Malloc **//
+    printf("Simple Malloc:\n");
+    uint8_t *simple_malloc = (uint8_t *) my_malloc(4);
+    if (simple_malloc == NULL) printf("Error: malloc return NULL\n");
+    *simple_malloc = 130;
+    if (*simple_malloc != 130) printf("Error: the value is not the expected one\n");
+    print_HEAP();
+    
+
+    void *other_malloc = my_malloc(100);
+
     print_HEAP();
 
-    uint8_t *third = (uint8_t *) my_malloc(42);
-    uint8_t *dsqddd = my_malloc(30);
-    uint8_t *sq = my_malloc(30);
+    //** Simple Free **//
+    printf("Simple Free:\n");
+    my_free(simple_malloc);
+    if (simple_malloc != NULL) printf("Error: the free ptr is not well free\n");
     print_HEAP();
 
-    my_free(sq);
+    //** Free With Merged Next Block (Only One) **//
+    printf("Free With Merged Next Block (Only One):\n");
+    my_free(other_malloc);
+    if (other_malloc != NULL) printf("Error: the free ptr is not well free\n");
     print_HEAP();
 
-    uint8_t *fff = my_malloc(45);
+    init();
+
+    //** Multiple Big Malloc **//
+    printf("Multiple Big Malloc:\n");
+    void *big_malloc1 = my_malloc(20000);
+    void *big_malloc2 = my_malloc(10000);
+    void *big_malloc3 = my_malloc(10000);
+    void *big_malloc4 = my_malloc(20000);
+    void *big_malloc5 = my_malloc(3990);
     print_HEAP();
 
-    uint8_t *d = my_malloc(63806);
-    uint8_t *e = my_malloc(19);
+
+    //** HEAP Full **//
+    printf("HEAP Full:\n");
+    void *full_malloc1 = my_malloc(20000);
+    void *full_malloc2 = my_malloc(1);
+    void *full_malloc3 = my_malloc(0);
+    void *full_malloc4 = my_malloc(-2);
+    if (full_malloc1 != NULL) printf("Error!");
+    if (full_malloc2 != NULL) printf("Error!");
+    if (full_malloc3 != NULL) printf("Error!");
+    if (full_malloc4 != NULL) printf("Error!");
     print_HEAP();
 
-    uint8_t *f = my_malloc(25);
+
+    //** Free With Merged Next Block (Multiple) **//
+    printf("Free With Merged Next Block (Multiple):\n");
+    my_free(big_malloc3);
+    my_free(big_malloc4);
+    print_HEAP();
+    my_free(big_malloc2);
     print_HEAP();
 
-    uint8_t *ssss = my_malloc(1);
+
+    init();
+    void *first = my_malloc(10000);
+    void *second = my_malloc(20000);
+    void *third = my_malloc(15000);
+    void *fourth = my_malloc(4);
+    void *fifth = my_malloc(10);
+    void *sixth = my_malloc(12);
+    void *seventh = my_malloc(52);
+    void *eight = my_malloc(10000);
+    void *ninth = my_malloc(10000);
+    void *ten = my_malloc(8902);
+    my_free(fourth);
+    my_free(fifth);
+    my_free(sixth);
+    my_free(seventh);
+
+
+    //** Malloc but no available size **//
+    printf("Malloc but no available size\n");
+    print_HEAP();
+    void *no_size = my_malloc(52 + 12 + 10 + 4 + 8);
+    if (no_size != NULL) printf("Error!\n");
     print_HEAP();
 
-    my_free(dsqddd);
+
+    init();
+    void *un = my_malloc(10000);
+    void *deux = my_malloc(20000);
+    void *trois = my_malloc(15000);
+    void *quatres = my_malloc(4);
+    void *cinq = my_malloc(10);
+    void *six = my_malloc(12);
+    void *sept = my_malloc(52);
+    void *huit = my_malloc(10000);
+    void *neuf = my_malloc(10000);
+    void *dix = my_malloc(8902);
+    my_free(quatres);
+    my_free(cinq);
+    my_free(six);
+    my_free(sept);
+
+    //** Malloc but available size if merged 4 blocks **//
+    printf("Malloc but available size if merged 4 blocks\n");
     print_HEAP();
-
-    my_free(third);
-    print_HEAP();
-
-    my_free(fff);
-    print_HEAP();
-
-    uint8_t *c = my_malloc(123);
-    print_HEAP();
-
-    uint8_t *ssfz = my_malloc(122);
-    print_HEAP();
-
-    uint8_t *vv = my_malloc(0);
-    print_HEAP();
-
-    a[0] = 32;
-    a[1] = 3;
-
-    *(b + 0) = 1;
-    *(b + 1) = 43;
-    *(b + 2) = 44;
-    *(b + 3) = 61092;
-
-    *(d + 262143) = 3;
-
+    my_malloc(84);
     print_HEAP();
 }
