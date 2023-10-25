@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <assert.h>
 
 const uint16_t HEAP_SIZE = 64000;
 const uint8_t SIZE_HEADER = 2;
@@ -220,9 +221,139 @@ void print_HEAP()
     printf("\n");
 }
 
+void giveData(uint8_t *ptr, uint16_t size){
+    return;
+    for (size_t i = 0; i < size; i++)
+    {
+        *(ptr + i) = (uint8_t)(i^2);
+    }
+}
+
+int testData(uint8_t *ptr, uint16_t size){
+    return 1;
+    for (size_t i = 0; i < size; i++)
+    {
+        if(*(ptr + i) != (uint8_t)(i^2)){
+            return 0;
+        };
+    }
+    return 1;
+}
+
+void test_overlap(){
+    printf("~-~-~-~-~-~-~-~-~-~-~ test overlap ~-~-~-~-~-~-~-~-~-~-~\n");
+
+    init();
+
+    uint8_t *a = (uint8_t *) my_malloc(2);
+
+    *a = (uint8_t)42;
+    *(a+1) = (uint8_t)60;
+
+    uint8_t *b = (uint8_t *) my_malloc(11);
+
+    giveData(b, 11);
+    
+
+    uint8_t *c = (uint8_t *) my_malloc(6000);
+
+    assert(testData(b,11));
+
+    print_HEAP();
+
+    assert(*a == (uint8_t)42 && *(a+1) == (uint8_t)60);
+    
+    printf("test_overlap passed\n");
+}
+
+void test_free(){
+    printf("~-~-~-~-~-~-~-~-~-~-~ test free ~-~-~-~-~-~-~-~-~-~-~\n");
+
+    init();
+
+    uint8_t *a = (uint8_t *) my_malloc(2);
+
+    *a = (uint8_t)42;
+    *(a+1) = (uint8_t)60;
+
+    print_HEAP();
+
+    my_free(a);
+
+    print_HEAP();
+
+    assert((*(a-2) & 1) == 0);
+    printf("test_free passed\n");
+}
+
+void test_nextfit(){
+    printf("~-~-~-~-~-~-~-~-~-~-~ test nextfit ~-~-~-~-~-~-~-~-~-~-~\n");
+
+    init();
+
+    print_HEAP();
+
+    uint8_t *a = (uint8_t *) my_malloc(100);
+
+    uint8_t *b = (uint8_t *) my_malloc(100);
+
+    giveData(b,100);
+
+    my_free(a);
+
+
+    uint8_t *c = (uint8_t *) my_malloc(10);
+
+    giveData(c,10);
+
+
+    assert(b < c);
+
+    uint8_t *d = (uint8_t *) my_malloc(63780);
+
+    giveData(d,63780);
+
+    print_HEAP();
+    uint8_t *e = (uint8_t *) my_malloc(10);
+    print_HEAP();
+
+
+    printf("pass\n");
+    giveData(e,10);
+
+    assert(e!=NULL);
+
+    assert(b > e);
+
+    assert(testData(d,63780));
+    assert(testData(e,10));
+    assert(testData(c,10));
+
+    my_free(d);
+    my_free(e);
+
+    uint8_t *f = (uint8_t *) my_malloc(63700);
+    uint8_t *g = (uint8_t *) my_malloc(100);
+
+    assert(b > g);
+
+    assert(testData(b,100));
+    
+    // print_HEAP();
+
+    printf("test_nextfit passed\n");
+
+}
+
+
 
 int main(int argc, char *argv[])
 {
+
+    test_overlap();
+    test_free();
+    test_nextfit();
+
     //** Empty HEAP **//
     printf("Empty HEAP:\n");
     init();
@@ -348,4 +479,6 @@ int main(int argc, char *argv[])
     print_HEAP();
     my_malloc(84);
     print_HEAP();
+
+
 }
