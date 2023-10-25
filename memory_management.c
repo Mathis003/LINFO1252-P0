@@ -111,7 +111,7 @@ void looped(uint16_t *loc, uint8_t *has_looped)
 }
 
 
-void *my_malloc(size_t size, uint8_t verbose)
+void *my_malloc(size_t size)
 {
     // Check the validity of the arguments
     if ((size > HEAP_SIZE - SIZE_HEADER) || (size <= 0)) return NULL;
@@ -221,31 +221,31 @@ int main(int argc, char *argv[])
     init();
     print_HEAP();
 
-    uint8_t *a = (uint8_t *) my_malloc(2, 0);
+    uint8_t *a = (uint8_t *) my_malloc(2);
     print_HEAP();
 
-    uint8_t *b = (uint8_t *) my_malloc(11, 0);
+    uint8_t *b = (uint8_t *) my_malloc(11);
     print_HEAP();
 
-    uint8_t *third = (uint8_t *) my_malloc(42, 0);
-    uint8_t *dsqddd = my_malloc(30, 0);
-    uint8_t *sq = my_malloc(30, 0);
+    uint8_t *third = (uint8_t *) my_malloc(42);
+    uint8_t *dsqddd = my_malloc(30);
+    uint8_t *sq = my_malloc(30);
     print_HEAP();
 
     my_free(sq);
     print_HEAP();
 
-    uint8_t *fff = my_malloc(45, 0);
+    uint8_t *fff = my_malloc(45);
     print_HEAP();
 
-    uint8_t *d = my_malloc(63806, 1);
-    uint8_t *e = my_malloc(19, 0);
+    uint8_t *d = my_malloc(63806);
+    uint8_t *e = my_malloc(19);
     print_HEAP();
 
-    uint8_t *f = my_malloc(25, 0);
+    uint8_t *f = my_malloc(25);
     print_HEAP();
 
-    uint8_t *ssss = my_malloc(1, 0);
+    uint8_t *ssss = my_malloc(1);
     print_HEAP();
 
     my_free(dsqddd);
@@ -257,10 +257,13 @@ int main(int argc, char *argv[])
     my_free(fff);
     print_HEAP();
 
-    uint8_t *c = my_malloc(123, 0);
+    uint8_t *c = my_malloc(123);
     print_HEAP();
 
-    uint8_t *ssfz = my_malloc(122, 0);
+    uint8_t *ssfz = my_malloc(122);
+    print_HEAP();
+
+    uint8_t *vv = my_malloc(0);
     print_HEAP();
 
     a[0] = 32;
@@ -269,7 +272,9 @@ int main(int argc, char *argv[])
     *(b + 0) = 1;
     *(b + 1) = 43;
     *(b + 2) = 44;
-    *(b + 3) = 45;
+    *(b + 3) = 61092;
+
+    *(d + 262143) = 3;
 
     print_HEAP();
 }
