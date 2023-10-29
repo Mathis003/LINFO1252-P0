@@ -32,23 +32,17 @@
 
         .metadatas_color {
             background-color: rgb(46, 199, 255); /* Couleur de fond bleue */
-            color: white; /* Couleur du texte blanc pour contraste */
+            color: rgb(0, 0, 0); /* Couleur du texte blanc pour contraste */
+        }
+
+        .nextfit_color {
+            background-color: rgb(255, 179, 0); /* Couleur de fond bleue */
+            color: rgb(0, 0, 0); /* Couleur du texte blanc pour contraste */
         }
 
         .free_color {
             background-color: #FFC0CB; /* Couleur de fond bleue */
             color: white; /* Couleur du texte blanc pour contraste */
-        }
-
-        .dot_nextfit {
-            content: "next_fit_offset";
-            width: 20px; /* Largeur du point */
-            height: 20px; /* Hauteur du point */
-            background-color: rgb(255, 32, 188); /* Couleur du point */
-            border-radius: 50%; /* Pour créer un point rond */
-            position: absolute;
-            top: 10%; /* Positionne le point au milieu de la case */
-            left: 10%; /* Positionne le point au milieu de la case */
         }
 
         .arrow {
@@ -77,19 +71,21 @@
     <div class="table">
         <!-- Première rangée -->
         <div class="row">
-            <div class="cell metadatas_color">
-                0b11111110
+            <div class="cell nextfit_color">
                 <div class="label">0x0</div>
+                0b00000001
+            </div>
+            <div class="cell nextfit_color">
+                0b00000000
+                <div class="label">0x1</div>
+            </div>
+            <div class="cell metadatas_color">
+                0b11111100
+                <div class="label">0x2</div>
                 <div class="dot_nextfit"></div>
             </div>
             <div class="cell metadatas_color">
                 0b11111001
-                <div class="label">0x1</div>
-            </div>
-            <div class="cell free_color">
-                <div class="label">0x2</div>
-            </div>
-            <div class="cell free_color">
                 <div class="label">0x3</div>
             </div>
             <div class="cell free_color">

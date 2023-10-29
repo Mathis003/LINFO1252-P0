@@ -32,7 +32,12 @@
 
         .metadatas_color {
             background-color: rgb(46, 199, 255); /* Couleur de fond bleue */
-            color: white; /* Couleur du texte blanc pour contraste */
+            color: rgb(0, 0, 0); /* Couleur du texte blanc pour contraste */
+        }
+
+        .nextfit_color {
+            background-color: rgb(255, 179, 0); /* Couleur de fond bleue */
+            color: rgb(0, 0, 0); /* Couleur du texte blanc pour contraste */
         }
 
         .free_color {
@@ -45,26 +50,16 @@
             color: white; /* Couleur du texte blanc pour contraste */
         }
 
-        .dot_nextfit {
-            content: "next_fit_offset";
-            width: 20px; /* Largeur du point */
-            height: 20px; /* Hauteur du point */
-            background-color: rgb(255, 32, 188); /* Couleur du point */
-            border-radius: 50%; /* Pour créer un point rond */
-            position: absolute;
-            top: 10%; /* Positionne le point au milieu de la case */
-            left: 10%; /* Positionne le point au milieu de la case */
-        }
-
         .dot_ptr_malloc {
             content: "next_fit_offset";
-            width: 20px; /* Largeur du point */
-            height: 20px; /* Hauteur du point */
+            width: 40px; /* Largeur du point */
+            height: 40px; /* Hauteur du point */
             background-color: rgb(255, 0, 0); /* Couleur du point */
-            border-radius: 50%; /* Pour créer un point rond */
+            border-radius: 100%; /* Pour créer un point rond */
             position: absolute;
-            top: 10%; /* Positionne le point au milieu de la case */
-            left: 10%; /* Positionne le point au milieu de la case */
+            top: 50% - height; /* Positionne le point au milieu de la case */
+            left: 50% - width; /* Positionne le point au milieu de la case */
+            border: 1px solid black; /* Ajouter un contour noir de 2px */
         }
 
         
@@ -74,34 +69,35 @@
     <div class="table">
         <!-- Première rangée -->
         <div class="row">
-            <div class="cell metadatas_color">
-                0b00000011
+            <div class="cell nextfit_color">
+                0b00010100
                 <div class="label">0x0</div>
             </div>
-            <div class="cell metadatas_color">
+            <div class="cell nextfit_color">
                 0b00000000
                 <div class="label">0x1</div>
             </div>
-            <div class="cell user_color">
-                <div class="label">0x2</div>
-                <div class="dot_ptr_malloc"></div>
-            </div>
-            <div class="cell user_color">
-                <div class="label">0x3</div>
-            </div>
             <div class="cell metadatas_color">
-                0b00010011
-                <div class="label">0x4</div>
+                0b00000011
+                <div class="label">0x2</div>
             </div>
             <div class="cell metadatas_color">
                 0b00000000
+                <div class="label">0x3</div>
+            </div>
+            <div class="cell user_color">
+                <div class="dot_ptr_malloc"></div>
+                <div class="label">0x4</div>
+            </div>
+            <div class="cell user_color">
                 <div class="label">0x5</div>
             </div>
-            <div class="cell user_color">
+            <div class="cell metadatas_color">
+                0b00010011
                 <div class="label">0x6</div>
-                <div class="dot_ptr_malloc"></div>
             </div>
-            <div class="cell user_color">
+            <div class="cell metadatas_color">
+                0b00000000
                 <div class="label">0x7</div>
             </div>
         </div>
@@ -109,6 +105,7 @@
         <!-- Deuxième rangée -->
         <div class="row">
             <div class="cell user_color">
+                <div class="dot_ptr_malloc"></div>
                 <div class="label">0x8</div>
             </div>
             <div class="cell user_color">
@@ -164,23 +161,22 @@
 
         <!-- Quatrième rangée -->
         <div class="row">
+            <div class="cell user_color">
+                <div class="label">0x18</div>
+            </div>
+            <div class="cell user_color">
+                <div class="label">0x19</div>
+            </div>
             <div class="cell metadatas_color">
                 0b00001111
-                <div class="label">0x18</div>
+                <div class="label">0x1A</div>
             </div>
             <div class="cell metadatas_color">
                 0b00000000
-                <div class="label">0x19</div>
-            </div>
-            <div class="cell user_color">
-                <div class="label">0x1A</div>
-                <div class="dot_ptr_malloc"></div>
-            </div>
-            <div class="cell user_color">
                 <div class="label">0x1B</div>
-                
             </div>
             <div class="cell user_color">
+                <div class="dot_ptr_malloc"></div>
                 <div class="label">0x1C</div>
             </div>
             <div class="cell user_color">
@@ -224,22 +220,22 @@
 
         <!-- Sixième rangée -->
         <div class="row">
+            <div class="cell user_color">
+                <div class="label">0x28</div>
+            </div>
+            <div class="cell user_color">
+                <div class="label">0x29</div>
+            </div>
             <div class="cell metadatas_color">
                 0b11010110
-                <div class="label">0x28</div>
-                <div class="dot_nextfit"></div>
+                <div class="label">0x2A</div>
             </div>
             <div class="cell metadatas_color">
                 0b11111001
-                <div class="label">0x29</div>
-            </div>
-            <div class="cell free_color">
-                <div class="label">0x2A</div>
-            </div>
-            <div class="cell free_color">
                 <div class="label">0x2B</div>
             </div>
             <div class="cell free_color">
+                <div class="dot_nextfit"></div>
                 <div class="label">0x2C</div>
             </div>
             <div class="cell free_color">
