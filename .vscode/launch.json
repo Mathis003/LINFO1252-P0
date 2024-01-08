@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/Mathis/Desktop/LINFO1252_Projet0",
-      "program": "d:/Mathis/Desktop/LINFO1252_Projet0/build/Debug/outDebug",
+      "cwd": "c:/Users/Mathis/LINFO1252_Projet0",
+      "program": "c:/Users/Mathis/LINFO1252_Projet0/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

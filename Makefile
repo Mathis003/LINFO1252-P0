@@ -1,6 +1,3 @@
-# press "make" to compile and run the program
-# press "make clean" to delete the executable file (main.out)
-
 CC=gcc
 FLAGS=-Wall -g
 OUTPUT=main.out
