@@ -2,7 +2,7 @@
 
 ## Description
 
-Welcome to the project repository for the LINFO1252 course at UCL, part of the Civil Engineering program in the field of computer science. This repository contains the source code for a simple memory management system implemented in C. The project focuses on dynamic memory allocation and deallocation using a custom heap structure. The memory manager includes functions for allocating and freeing memory, along with helper functions for managing the internal heap.
+Welcome to the project repository for the LINFO1252 course at UCLouvain, part of the Civil Engineering program in the field of computer science. This repository contains the source code for a simple memory management system implemented in C. The project focuses on dynamic memory allocation and deallocation using a custom heap structure. The memory manager includes functions for allocating and freeing memory, along with helper functions for managing the internal heap.
 
 ### Project Details
 - **Grade:** 16/20 (Code: 10/10, Report: 6/10).
