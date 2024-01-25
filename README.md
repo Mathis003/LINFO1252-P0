@@ -59,4 +59,4 @@ This memory management implementation is intentionally kept simple to serve as a
 Contributions, feedback, and suggestions are welcome. Feel free to share your thoughts and improvements.
 
 ---
-*This project is part of a course at UCL in the Civil Engineering program, focusing on computer science.*
+*This project is part of a course at UCLouvain in the Civil Engineering program, focusing on computer science.*
