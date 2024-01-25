@@ -9,13 +9,13 @@ Welcome to the project repository for the LINFO1252 course at UCL, part of the C
 - **Language:** C.
 - **Environment:** Linux.
 
-# Feedback Summary
+## Feedback Summary
 
-## Report Assessment
+### Report Assessment
 - **Structure and Presentation:** Good.
 - **Content and Explanation:** Insufficient.
   
-## Customized Comments
+### Customized Comments
 - **Functionality of `multiblocs`:** The purpose of the `multiblocs` function is unclear. Further clarification on its role and functionality is needed for a more comprehensive understanding.
 
 - **Memory Release Strategy:** It is not evident whether the memory release strategy incorporates the merging of free blocks. Additional details on the approach taken for memory release, specifically regarding the merging of free blocks, would enhance the clarity of the implementation.
