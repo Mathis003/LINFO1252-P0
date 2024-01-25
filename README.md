@@ -1,5 +1,7 @@
 # Dynamic Memory Allocation Project
 
+TODO
+
 ## Introduction
 
 This project implements custom `malloc` and `free` functions for dynamic memory allocation, following the guidelines of LINFO1252 - Systèmes Informatiques course.

@@ -1,7 +1,21 @@
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef MEMORY_MANAGEMENT_H
+#define MEMORY_MANAGEMENT_H
 
-#include "var.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+
+const uint16_t HEAP_SIZE = 64000;
+const uint8_t SIZE_HEADER = 2;
+
+uint8_t MY_HEAP[64000];
+
+/*
+* Print the HEAP.
+*
+* @return: void
+*/
+void print_HEAP();
 
 /*
 * Merge the current free block with next blocks if they are availables in the heap and free.
@@ -34,4 +48,39 @@ void initialize_allocated_block(uint16_t *my_heap, uint16_t loc, uint16_t availa
 */
 void looped(uint16_t *loc, uint8_t *has_looped);
 
-#endif /* HELPER_H */
+/*
+* Initialize the heap with a two metadata :
+* - The first one is the nextfit offset (index in the heap)
+* - The second one is the size of the first free block
+*
+* @param: void
+* @return: void
+*/
+void init();
+
+/*
+* Allocate a block of memory of the given size.
+*
+* @param size:     size of the block to allocate
+* @return:         pointer to the allocated block
+*/
+void *my_malloc(size_t size);
+
+/*
+* Free a block of memory.
+*
+* @param pointer:  pointer to the block to free
+* @return:         void
+*/
+void my_free(void *pointer);
+
+/*
+* Main function.
+*
+* @param argc:     number of arguments
+* @param argv:     array of arguments
+* @return:         0 if the program has been executed successfully, 1 otherwise
+*/
+int main(int argc, char *argv[]);
+
+#endif /* MEMORY_MANAGEMENT_H */

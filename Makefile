@@ -1,12 +1,12 @@
 CC=gcc
 FLAGS=-Wall -g
-OUTPUT=main.out
+OUTPUT=memory_management.out
 
-run: compile
-	./main.out
+run: build
+	./${OUTPUT}
 
-compile: memory_management.c
-	${CC} ${FLAGS} -o ${OUTPUT} memory_management.c
+build: memory_management.c
+	${CC} ${FLAGS} -o ${OUTPUT} $^
 
 clean:
 	rm -f ${OUTPUT}
